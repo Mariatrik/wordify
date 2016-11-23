@@ -1,0 +1,21 @@
+{
+  "name": "gulp_browserify",
+  "description": "",
+  "main": "index.js",
+  "authors": [
+    "Thanos Eleftherakos <teleftherakos@gmail.com>"
+  ],
+  "license": "ISC",
+  "moduleType": [],
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "font-awesome": "^4.7.0"
+  }
+}
