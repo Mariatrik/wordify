@@ -196,7 +196,7 @@ function insert_fb_in_head() {
     global $post;
     if ( !is_singular()) //if it is not a post or a page
         return;
-        echo '<meta property="og:title" content="' . get_the_title() . ' | mokpo - creative cakes"/>';
+        echo '<meta property="og:title" content="' . get_the_title() . ' | '. bloginfo( 'name' ) .' "/>';
         echo '<meta property="og:description" content="'. get_the_excerpt() .'"/>';
         echo '<meta property="og:type" content="article"/>';
         echo '<meta property="og:url" content="' . get_permalink() . '"/>';
