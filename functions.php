@@ -106,12 +106,6 @@ function wordify_scripts() {
 
 	wp_enqueue_style( 'wordify-main_style', get_template_directory_uri().'/assets/css/main.min.css', array(), '1.0.0', 'all' );
 
-	wp_enqueue_script( 'wordify-navigation', get_template_directory_uri() . '/js/navigation.js', array(), '20151215', true );
-
-	wp_enqueue_script( 'wordify-bundle', get_template_directory_uri() . '/assets/js/bundle.js', array(), '20151215', true );
-
-	wp_enqueue_script( 'wordify-skip-link-focus-fix', get_template_directory_uri() . '/js/skip-link-focus-fix.js', array(), '20151215', true );
-
 	wp_enqueue_script('theme-script', get_template_directory_uri() . '/assets/js/bundle.js',array(),'1.0.0', 'all');
 
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
@@ -196,11 +190,11 @@ function insert_fb_in_head() {
     global $post;
     if ( !is_singular()) //if it is not a post or a page
         return;
-        echo '<meta property="og:title" content="' . get_the_title() . ' | '. bloginfo( 'name' ) .' "/>';
+        echo '<meta property="og:title" content="' . get_the_title() . ' | '.  get_bloginfo( 'name' ) .' "/>';
         echo '<meta property="og:description" content="'. get_the_excerpt() .'"/>';
         echo '<meta property="og:type" content="article"/>';
         echo '<meta property="og:url" content="' . get_permalink() . '"/>';
-        echo '<meta property="og:site_name" content="mokpo - creative cakes"/>';
+        echo '<meta property="og:site_name" content="'.get_bloginfo('name').'"/>';
         $thumbnail_src = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'facebook-thumb' );
         echo '<meta property="og:image" content="' . esc_attr( $thumbnail_src[0] ) . '"/>';
 }
