@@ -19,11 +19,13 @@
     fileinclude     = require('gulp-file-include'),
     gutil           = require( 'gulp-util' ),
     ftp             = require( 'vinyl-ftp' ),
-    runSequence     = require('run-sequence');
+    runSequence     = require('run-sequence'),
+    fs              = require('fs');
+    require('dotenv').config()
 
 // -----------------------------------------------------------------------------
 var config = {
-     bowerDir    : './bower_components',
+    bowerDir    : './bower_components',
     dest        : '/',
     dest_js     : 'assets/js',
     dest_css    : 'assets/css',
@@ -41,6 +43,27 @@ var config = {
     src_fonts   : 'src/fonts/*.**'
 }
 
+const AUTOPREFIXER_BROWSERS = [
+  'last 2 version',
+  '> 1%',
+  'ie >= 9',
+  'ie_mob >= 10',
+  'ff >= 30',
+  'chrome >= 34',
+  'safari >= 7',
+  'opera >= 23',
+  'ios >= 7',
+  'android >= 4',
+  'bb >= 10'
+];
+
+
+// -----------------------------------------------------------------------------
+// CREATE ENV FILE
+// -----------------------------------------------------------------------------
+gulp.task('create_env', function (cb) {
+  fs.writeFile('.env', 'FTP_HOST=\nFTP_PASSWORD=\nFTP_USER=\nFTP_LOCATION=', cb);
+});
 
 // -----------------------------------------------------------------------------
 // SASS TO CSS
@@ -58,22 +81,23 @@ gulp.task("sass", function(){
               // .pipe(sourcemaps.init())
               // .pipe(sourcemaps.write())
               .pipe(gulp.dest(config.dest_css))
-              .pipe(browserSync.reload({stream:true}));
+              .pipe(browserSync.reload({stream:true}))
+              .pipe( notify( { message: 'TASK: "styles" Completed! 💯', onLast: true } ) );
 });
 // -----------------------------------------------------------------------------
 // Font Awesome
 // -----------------------------------------------------------------------------
-gulp.task('icons', function() { 
-    return gulp.src(config.bowerDir + '/font-awesome/fonts/**.*') 
-        .pipe(gulp.dest(config.dest_fonts)); 
+gulp.task('icons', function() {
+    return gulp.src(config.bowerDir + '/font-awesome/fonts/**.*')
+        .pipe(gulp.dest(config.dest_fonts));
 });
 
 // -----------------------------------------------------------------------------
 // Fonts
 // -----------------------------------------------------------------------------
-gulp.task('fonts', function() { 
-    return gulp.src(config.src_fonts) 
-        .pipe(gulp.dest(config.dest_fonts)); 
+gulp.task('fonts', function() {
+    return gulp.src(config.src_fonts)
+        .pipe(gulp.dest(config.dest_fonts));
 });
 
 // -----------------------------------------------------------------------------
@@ -93,9 +117,9 @@ gulp.task('browserify', function() {
 // -----------------------------------------------------------------------------
 // Images
 // -----------------------------------------------------------------------------
-gulp.task('images', function() { 
-    return gulp.src(config.src_img) 
-        .pipe(gulp.dest(config.dest_img)); 
+gulp.task('images', function() {
+    return gulp.src(config.src_img)
+        .pipe(gulp.dest(config.dest_img));
 });
 
 // -----------------------------------------------------------------------------
@@ -134,9 +158,9 @@ gulp.task('watch', function(){
 
 function getFtpConnection() {
     return ftp.create({
-      host:     '',
-  		user:     '',
-  		password: '',
+      host: process.env.FTP_HOST,
+      user: process.env.FTP_USER,
+      password: process.env.FTP_PASSWORD,
   		parallel: 8,
   		log:      gutil.log
     });
@@ -164,9 +188,9 @@ gulp.task( 'deploy', function () {
 	// turn off buffering in gulp.src for best performance
 
 	return gulp.src( globs,{ base: '.', buffer: false } )
-		.pipe( conn.newer( '/' ) ) // only upload newer files
-		.pipe( conn.dest( '/' ) );
-
+    .pipe(conn.newer(process.env.FTP_LOCATION)) // only upload newer files
+    .pipe(conn.dest(process.env.FTP_LOCATION))
+    .pipe( notify( { message: 'TASK: "deploy" Completed! 💯', onLast: true } ) );
 } );
 
 // -----------------------------------------------------------------------------
@@ -192,6 +216,6 @@ gulp.task('deploywatch', function(){
 // -----------------------------------------------------------------------------
 //Default
 // -----------------------------------------------------------------------------
-gulp.task('init',['watch','sass','fonts','fileinclude','browserify','icons']);
+gulp.task('init',['watch','sass','fonts','fileinclude','browserify','icons', 'create_env']);
 gulp.task('default',['watch']);
 gulp.task('deploymode',['deploywatch']);
