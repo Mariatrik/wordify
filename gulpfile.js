@@ -21,7 +21,8 @@
     gutil           = require( 'gulp-util' ),
     ftp             = require( 'vinyl-ftp' ),
     runSequence     = require('run-sequence'),
-    fs              = require('fs');
+    fs              = require('fs'),
+    jeditor         = require('gulp-json-editor')
     require('dotenv').config()
 
 // -----------------------------------------------------------------------------
@@ -42,7 +43,8 @@ var config = {
     src_sass    : 'src/sass/**/*.scss',
     src_js      : 'src/js/*.js',
     src_img     : 'src/images/*.**',
-    src_fonts   : 'src/fonts/*.**'
+    src_fonts   : 'src/fonts/*.**',
+    src_version : 'assets/'
 }
 
 const AUTOPREFIXER_BROWSERS = [
@@ -140,6 +142,24 @@ gulp.task('fileinclude', function() {
     .pipe(gulp.dest(config.dest));
 });
 
+// -----------------------------------------------------------------------------
+// Version
+// -----------------------------------------------------------------------------
+gulp.task('version', function () {
+  var fileExists = fs.existsSync(config.src_version+'/version.json');
+  if(!fileExists) {
+    fs.writeFile(config.src_version+'/version.json', '{"version": 0 }',function(err) {
+      if(err) {
+          return console.log(err);
+      }
+    });
+  }
+  return gulp
+      .src(config.src_version+'/version.json')
+      .pipe(jeditor({ version: Date.now() }))
+      .pipe(gulp.dest(config.src_version));
+});
+
 
 // -----------------------------------------------------------------------------
 // Watch
@@ -156,8 +176,8 @@ gulp.task('watch', function(){
   gulp.watch(config.src_html, ['fileinclude']);
   gulp.watch(config.src_partials, ['fileinclude']);
   gulp.watch(config.src + '/images/**.*', ['images']);
-  gulp.watch(config.src_js, ['browserify']);
-  gulp.watch(config.src_sass, ['sass']);
+  gulp.watch(config.src_js, ['browserify', 'version']);
+  gulp.watch(config.src_sass, ['sass', 'version']);
   gulp.watch(config.dest_php).on('change',browserSync.reload);
   gulp.watch(config.dest_html).on('change',browserSync.reload);
 });

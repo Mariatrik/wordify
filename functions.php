@@ -102,11 +102,17 @@ add_action( 'widgets_init', 'wordify_widgets_init' );
  * Enqueue scripts and styles.
  */
 function wordify_scripts() {
-	wp_enqueue_style( 'wordify-style', get_stylesheet_uri() );
+  wp_enqueue_style( 'wordify-style', get_stylesheet_uri() );
+  
+  $version = "1.0.0";
+  $version_json = file_get_contents(__DIR__ .'/assets/version.json');
+  if($version_json) {
+    $data = json_decode($version_json);
+    $version = $data->version;
+  }
+	wp_enqueue_style( 'wordify-main_style', get_template_directory_uri().'/assets/css/main.min.css', array(), $version, 'all' );
 
-	wp_enqueue_style( 'wordify-main_style', get_template_directory_uri().'/assets/css/main.min.css', array(), '1.0.0', 'all' );
-
-	wp_enqueue_script('theme-script', get_template_directory_uri() . '/assets/js/bundle.js',array(),'1.0.0', 'all');
+	wp_enqueue_script('theme-script', get_template_directory_uri() . '/assets/js/bundle.js',array(),$version, 'all');
 
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
 		wp_enqueue_script( 'comment-reply' );
