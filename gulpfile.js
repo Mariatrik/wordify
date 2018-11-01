@@ -11,6 +11,7 @@
     notify          = require("gulp-notify"),
     browserSync     = require("browser-sync"),
     source          = require('vinyl-source-stream'),
+    lineec          = require('gulp-line-ending-corrector'),
     streamify       = require('gulp-streamify'),
     browserify      = require("browserify"),
     rename          = require('gulp-rename'),
@@ -74,13 +75,13 @@ gulp.task("sass", function(){
               .pipe(plumber({errorHandler: notify.onError("Error: <%= error.message %>")}))
               .pipe(sass())
               .pipe(cssImport())
-              .pipe(prefix('last 3 versions'))
-              .pipe(concat('main.css'))
-              .pipe(gulp.dest(config.dest_css))
+              .pipe( sourcemaps.write( { includeContent: false } ) )
+              .pipe( sourcemaps.init( { loadMaps: true } ) )
+              .pipe(prefix(AUTOPREFIXER_BROWSERS))
               .pipe(concat('main.min.css'))
-              .pipe(minify_css())
-              // .pipe(sourcemaps.init())
-              // .pipe(sourcemaps.write())
+              .pipe(gulp.dest(config.dest_css))
+              .pipe(minify_css( {maxLineLen: 10} ))
+              .pipe( lineec() )
               .pipe(gulp.dest(config.dest_css))
               .pipe(browserSync.reload({stream:true}))
               .pipe( notify( { message: 'TASK: "styles" Completed! 💯', onLast: true } ) );
@@ -90,7 +91,8 @@ gulp.task("sass", function(){
 // -----------------------------------------------------------------------------
 gulp.task('icons', function() {
     return gulp.src('node_modules/@fortawesome/fontawesome-free/webfonts/*')
-        .pipe(gulp.dest(config.dest_fa));
+        .pipe(gulp.dest(config.dest_fa))
+        .pipe( notify( { message: 'TASK: "icons" Completed! 💯', onLast: true } ) );
 });
 
 // -----------------------------------------------------------------------------
@@ -98,7 +100,8 @@ gulp.task('icons', function() {
 // -----------------------------------------------------------------------------
 gulp.task('fonts', function() {
     return gulp.src(config.src_fonts)
-        .pipe(gulp.dest(config.dest_fonts));
+        .pipe(gulp.dest(config.dest_fonts))
+        .pipe( notify( { message: 'TASK: "fonts" Completed! 💯', onLast: true } ) );
 });
 
 // -----------------------------------------------------------------------------
@@ -112,7 +115,8 @@ gulp.task('browserify', function() {
     .pipe(streamify(uglify()))
     .pipe(rename('bundle.js'))
     .pipe(gulp.dest(config.dest_js))
-    .pipe(browserSync.reload({stream:true}));
+    .pipe(browserSync.reload({stream:true}))
+    .pipe( notify( { message: 'TASK: "js" Completed! 💯', onLast: true } ) );
 });
 
 // -----------------------------------------------------------------------------
@@ -120,7 +124,8 @@ gulp.task('browserify', function() {
 // -----------------------------------------------------------------------------
 gulp.task('images', function() {
     return gulp.src(config.src_img)
-        .pipe(gulp.dest(config.dest_img));
+        .pipe(gulp.dest(config.dest_img))
+        .pipe( notify( { message: 'TASK: "images" Completed! 💯', onLast: true } ) );
 });
 
 // -----------------------------------------------------------------------------
@@ -150,6 +155,7 @@ gulp.task('watch', function(){
 
   gulp.watch(config.src_html, ['fileinclude']);
   gulp.watch(config.src_partials, ['fileinclude']);
+  gulp.watch(config.src + '/images/**.*', ['images']);
   gulp.watch(config.src_js, ['browserify']);
   gulp.watch(config.src_sass, ['sass']);
   gulp.watch(config.dest_php).on('change',browserSync.reload);
@@ -207,6 +213,7 @@ gulp.task('deploywatch', function(){
   });
   gulp.watch(config.src_html, ['fileinclude','deploy'])
   gulp.watch(config.src_partials, ['fileinclude','deploy']);
+  gulp.watch(config.src + '/images/**.*', ['images']);
   gulp.watch(config.src_js, function(){ runSequence('browserify', 'deploy',browserSync.reload) });
   gulp.watch(config.src_sass, function(){ runSequence('sass', 'deploy',browserSync.reload) });
   gulp.watch(config.dest_php).on('change',browserSync.reload);
