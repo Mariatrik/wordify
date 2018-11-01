@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@fortawesome/fontawesome-free": "^5.4.2",
     "browser-sync": "^2.11.2",
     "browserify": "^13.0.0",
     "debowerify": "^1.4.1",

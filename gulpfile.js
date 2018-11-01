@@ -31,6 +31,7 @@ var config = {
     dest_css    : 'assets/css',
     dest_img    : 'assets/images',
     dest_fonts  : 'assets/fonts',
+    dest_fa     : 'assets/fonts/fa',
     dest_html   : '*.html',
     dest_php    : '*.php',
     dest_assets : 'assets',
@@ -62,7 +63,7 @@ const AUTOPREFIXER_BROWSERS = [
 // CREATE ENV FILE
 // -----------------------------------------------------------------------------
 gulp.task('create_env', function (cb) {
-  fs.writeFile('.env', 'FTP_HOST=\nFTP_PASSWORD=\nFTP_USER=\nFTP_LOCATION=', cb);
+  fs.writeFile('.env', 'FTP_HOST=\nFTP_PASSWORD=\nFTP_USER=\nFTP_LOCATION=\nLOCAL_URL=\nLIVE_URL=', cb);
 });
 
 // -----------------------------------------------------------------------------
@@ -88,8 +89,8 @@ gulp.task("sass", function(){
 // Font Awesome
 // -----------------------------------------------------------------------------
 gulp.task('icons', function() {
-    return gulp.src(config.bowerDir + '/font-awesome/fonts/**.*')
-        .pipe(gulp.dest(config.dest_fonts));
+    return gulp.src('node_modules/@fortawesome/fontawesome-free/webfonts/*')
+        .pipe(gulp.dest(config.dest_fa));
 });
 
 // -----------------------------------------------------------------------------
@@ -142,8 +143,8 @@ gulp.task('watch', function(){
   browserSync.init({
     // server: './dist'
     injectChanges: true,
-     proxy: "wordify.dev",
-     host: "wordify.dev"
+     proxy: process.env.LOCAL_URL,
+     host: process.env.LOCAL_URL
 
   });
 
@@ -200,8 +201,8 @@ gulp.task('deploywatch', function(){
   browserSync.init({
     // server: './dist'
     injectChanges: true,
-     proxy: "",
-     host: ""
+     proxy: process.env.LIVE_URL,
+     host: process.env.LIVE_URL
 
   });
   gulp.watch(config.src_html, ['fileinclude','deploy'])
